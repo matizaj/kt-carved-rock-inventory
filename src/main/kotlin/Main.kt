@@ -12,7 +12,10 @@ fun main(args: Array<String>){
     while(option != 0) {
         when (option) {
             1 -> {
-                // TODO: implement data in console
+                val result = loadFile("inventory.csv")
+                if(result.success) {
+                    result.payload.map { println(it) }
+                }
             }
 
             2 -> {

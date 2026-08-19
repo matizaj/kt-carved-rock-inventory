@@ -1,5 +1,6 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '2.2.21'
+    id 'application'
 }
 
 group = 'com.github.matizaj'
@@ -20,4 +21,10 @@ kotlin {
 
 test {
     useJUnitPlatform()
+}
+application {
+    mainClass = 'com.giyhub.matizaj.MainKt'
+}
+run {
+    standardInput = System.in
 }
