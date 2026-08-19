@@ -19,7 +19,13 @@ fun main(args: Array<String>){
             }
 
             2 -> {
-                // TODO: implement raw data export
+                val loadResults = loadFile("inventory.csv")
+                val fileResult = writeItems2file("raw-data.txt", loadResults.payload)
+                if (!fileResult.success) {
+                    println("Error: ${fileResult.errorMessage}")
+                }else {
+                    println(loadResults.errorMessage)
+                }
             }
 
             3 -> {
