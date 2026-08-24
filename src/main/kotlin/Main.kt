@@ -1,9 +1,11 @@
 package com.giyhub.matizaj
 
+import java.io.File
 import java.util.Locale.getDefault
 
 var overwriteFiles = false
 var overwriteFolders = false
+const val PROCESSING_FOLDER = "processing"
 
 fun main(args: Array<String>){
     println("Craved Rock Inventory ")
@@ -20,12 +22,16 @@ fun main(args: Array<String>){
 
             2 -> {
                 val loadResults = loadFile("inventory.csv")
-                val fileResult = writeItems2file("raw-data.txt", loadResults.payload)
-                if (!fileResult.success) {
-                    println("Error: ${fileResult.errorMessage}")
-                }else {
-                    println(loadResults.errorMessage)
+                if(loadResults.success) {
+                    checkForFolder(PROCESSING_FOLDER)
+                    val fileResult = writeItems2file(PROCESSING_FOLDER, "raw-data.txt",  loadResults.payload)
+                    if (!fileResult.success) {
+                        println("Error: ${fileResult.errorMessage}")
+                    }else {
+                        println(loadResults.errorMessage)
+                    }
                 }
+
             }
 
             3 -> {
@@ -54,6 +60,7 @@ fun showConfiguration(){
         overwriteFiles = input.lowercase(getDefault()).equals("y", true)
     }
     println("Overwrite folders? Y/N")
+    input = readlnOrNull()
     if (input!= null) {
         overwriteFolders = input.lowercase(getDefault()).equals("y", true)
     }
@@ -77,4 +84,16 @@ fun showMenu(): Int {
         }
     }
     return showMenu()
+}
+
+fun checkForFolder(folder: String):Unit {
+    val folderCheck = checkIfFolderExists(folder)
+    if (folderCheck.success && folderCheck.payload) {
+        println("Folder $folder already exists")
+    } else {
+        val result = createOutputFolder(folder, overwriteFolders)
+        if (!result.success) {
+            println("Error: ${result.errorMessage}")
+        }
+    }
 }
