@@ -5,6 +5,7 @@ import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
+import java.nio.file.StandardOpenOption
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
@@ -29,10 +30,20 @@ fun loadFile(filename: String): FileOperation<List<InventoryItem>> {
     return FileOperation(success = true, payload = items, errorMessage = "")
 }
 
-fun writeItems2file(folderName: String, filename: String, items: List<InventoryItem>):FileOperation<Unit> {
+fun writeItems2file(folderName: String, filename: String, items: List<InventoryItem>, overwriteFiles: Boolean):FileOperation<Unit> {
     try {
     val file = Path("$OUTPUT_PATH/$folderName", filename)
-        file.writeLines(items.map { it.toString() }, Charset.defaultCharset())
+        if(overwriteFiles) {
+            file.writeLines(
+                items.map { it.toString() },
+                Charset.defaultCharset(),
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING,
+                StandardOpenOption.WRITE
+            )
+        }else {
+            file.writeLines(items.map { it.toString() }, Charset.defaultCharset(), StandardOpenOption.CREATE, StandardOpenOption.WRITE)
+        }
         println("SUCCESS: wrote ${items.size} to the file ${file.name}")
         return FileOperation(true, Unit)
     } catch (e: Exception) {

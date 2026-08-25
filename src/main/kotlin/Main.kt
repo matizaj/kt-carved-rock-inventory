@@ -1,6 +1,5 @@
 package com.giyhub.matizaj
 
-import java.io.File
 import java.util.Locale.getDefault
 
 var overwriteFiles = false
@@ -16,7 +15,7 @@ fun main(args: Array<String>){
             1 -> {
                 val result = loadFile("inventory.csv")
                 if(result.success) {
-                    result.payload.map { println(it) }
+                    result.payload.forEach { println(it) }
                 }
             }
 
@@ -24,7 +23,10 @@ fun main(args: Array<String>){
                 val loadResults = loadFile("inventory.csv")
                 if(loadResults.success) {
                     checkForFolder(PROCESSING_FOLDER)
-                    val fileResult = writeItems2file(PROCESSING_FOLDER, "raw-data.txt",  loadResults.payload)
+                    val fileResult = writeItems2file(PROCESSING_FOLDER,
+                        "raw-data.txt",
+                        loadResults.payload,
+                        overwriteFiles)
                     if (!fileResult.success) {
                         println("Error: ${fileResult.errorMessage}")
                     }else {
@@ -45,7 +47,7 @@ fun main(args: Array<String>){
             5 -> {
                 val targetFolder = "transfer"
                 checkForFolder(targetFolder)
-                var result = moveFiles(PROCESSING_FOLDER, targetFolder, overwriteFiles)
+                val result = moveFiles(PROCESSING_FOLDER, targetFolder, overwriteFiles)
                 if(!result.success) {
                     println(result.errorMessage)
                 }
@@ -91,7 +93,7 @@ fun showMenu(): Int {
     return showMenu()
 }
 
-fun checkForFolder(folder: String):Unit {
+fun checkForFolder(folder: String) {
     val folderCheck = checkIfFolderExists(folder)
     if (folderCheck.success && folderCheck.payload) {
         println("Folder $folder already exists")
