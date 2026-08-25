@@ -4,8 +4,11 @@ import kotlinx.datetime.LocalDate
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import kotlin.io.path.Path
 import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
+import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
 import kotlin.io.path.readLines
 import kotlin.io.path.writeLines
@@ -59,5 +62,42 @@ fun createOutputFolder(folderName: String, overwriteFolder: Boolean): FileOperat
             return FileOperation(success = true, payload = Unit)
         }
         return FileOperation(success = false, errorMessage = "ERROR: ${e.message}", payload = Unit)
+    }
+}
+fun moveFiles(src: String, target: String, overwriteFile:Boolean):FileOperation<Unit> {
+    try {
+        val source = Paths.get("$OUTPUT_PATH/$src")
+        val target = Paths.get("$OUTPUT_PATH/$target")
+        if (!source.exists() || !source.isDirectory()) {
+            println("FAILED: $src does not exist or not a directory")
+            return FileOperation(success = false, payload = Unit, errorMessage = "FAIL")
+        }
+        if (!target.exists()) {
+            createOutputFolder(target.toString(), overwriteFile)
+        }
+        var counter = 0
+        val files = Files.list(source).use { stream  ->
+            stream.filter {  path ->
+                Files.isRegularFile(path)}.toList()
+        }
+
+        files.forEach { file ->
+            try {
+                val targetFile = target.resolve(file.name)
+                if(overwriteFile) {
+                    Files.move(file, targetFile, StandardCopyOption.REPLACE_EXISTING)
+                }else {
+                    Files.move(file, targetFile)
+                }
+            } catch(ex: Exception) {
+                return FileOperation(success = false, errorMessage = "ERROR: ${ex.message}", payload = Unit)
+            }
+            counter++
+
+        }
+        println("SUCCESS: moved $counter from $src to $target")
+        return FileOperation(true, Unit)
+    } catch(ex: Exception) {
+        return FileOperation(success = false, payload=Unit, errorMessage = "FAILED: ${ex.message}")
     }
 }

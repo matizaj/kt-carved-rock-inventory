@@ -43,7 +43,12 @@ fun main(args: Array<String>){
             }
 
             5 -> {
-                // TODO: implement prepare data for transfer
+                val targetFolder = "transfer"
+                checkForFolder(targetFolder)
+                var result = moveFiles(PROCESSING_FOLDER, targetFolder, overwriteFiles)
+                if(!result.success) {
+                    println(result.errorMessage)
+                }
             }
 
             9 -> showConfiguration()
