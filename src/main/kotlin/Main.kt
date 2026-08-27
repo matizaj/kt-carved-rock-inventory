@@ -37,7 +37,33 @@ fun main(args: Array<String>){
             }
 
             3 -> {
-                // TODO: implement export data grouped by category
+                val inventory = loadFile("inventory.csv")
+                if (inventory.success) {
+                    val categories = getCategories(inventory.payload)
+                    println("Select category")
+                    for (i in categories.indices) {
+                        println("$i. ${categories[i]}")
+                    }
+                    val input = readlnOrNull()
+                    if(input != null) {
+                        val option = input.toIntOrNull()
+                        if (option != null) {
+                            val selectedCategory = categories[option]
+                            val filteredItems = filterItemsByCategory(inventory.payload, selectedCategory)
+                            checkForFolder(PROCESSING_FOLDER)
+                            val fileResult = writeItems2file(
+                                PROCESSING_FOLDER,
+                                "category-$selectedCategory.txt",
+                                filteredItems,
+                                overwriteFiles)
+                            if (!fileResult.success) {
+                                println("FAILED: ${fileResult.errorMessage}")
+                            }
+                        }
+                    }
+                }
+
+
             }
 
             4 -> {
